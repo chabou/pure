@@ -114,6 +114,9 @@ prompt_pure_preprompt_render() {
 	# Set the path.
 	preprompt_parts+=('%F{blue}%~%f')
 
+	# now team
+	[[ -n ${prompt_pure_now_team} ]] && preprompt_parts+="%F{242}△ ${prompt_pure_now_team}%f"
+
 	# Add git branch and dirty status info.
 	typeset -gA prompt_pure_vcs_info
 	if [[ -n $prompt_pure_vcs_info[branch] ]]; then
@@ -283,6 +286,9 @@ prompt_pure_async_tasks() {
 		prompt_pure_async_init=1
 	}
 
+	# now
+	async_job "prompt_pure" prompt_pure_async_now_team
+
 	typeset -gA prompt_pure_vcs_info
 
 	local -H MATCH
@@ -306,6 +312,10 @@ prompt_pure_async_tasks() {
 	[[ -n $prompt_pure_vcs_info[top] ]] || return
 
 	prompt_pure_async_refresh
+}
+
+prompt_pure_async_now_team() {
+	print -r - `now_current_team`
 }
 
 prompt_pure_async_refresh() {
@@ -422,10 +432,16 @@ prompt_pure_async_callback() {
 				fi
 			fi
 			;;
+		prompt_pure_async_now_team)
+			if [[ -n $output ]]; then
+				prompt_pure_now_team="$output"
+				prompt_pure_preprompt_render
+			fi
+			;;
 	esac
 }
 
-prompt_pure_setup() {
+prompt_pure-now_setup() {
 	# Prevent percentage showing up if output doesn't end with a newline.
 	export PROMPT_EOL_MARK=''
 
@@ -450,6 +466,7 @@ prompt_pure_setup() {
 	autoload -Uz add-zsh-hook
 	autoload -Uz vcs_info
 	autoload -Uz async && async
+	autoload -Uz now_functions && now_functions
 
 	add-zsh-hook precmd prompt_pure_precmd
 	add-zsh-hook preexec prompt_pure_preexec
@@ -467,4 +484,4 @@ prompt_pure_setup() {
 	PROMPT+='%(?.%F{magenta}.%F{red})${PURE_PROMPT_SYMBOL:-❯}%f '
 }
 
-prompt_pure_setup "$@"
+prompt_pure-now_setup "$@"
