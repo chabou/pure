@@ -1,6 +1,6 @@
 {
   "name": "pure-prompt-now",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Pretty, minimal and fast ZSH prompt with zeit's now flavor",
   "license": "MIT",
   "repository": "chabou/pure-now",
@@ -26,7 +26,7 @@
   "files": [
     "pure.zsh",
     "async.zsh",
-    "now.zsh"
+    "now_functions.zsh"
   ],
   "keywords": [
     "zsh",
