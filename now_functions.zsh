@@ -1,6 +1,6 @@
 # Inspired by https://github.com/robbyrussell/oh-my-zsh/blob/master/plugins/jsontools/jsontools.plugin.zsh
 now_current_team() {
-  NOW_CONFIG_FILE=~/.now.json
+  NOW_CONFIG_FILE=~/.now/config.json
 
   if [[ ! -r  $NOW_CONFIG_FILE ]]; then
     exit
@@ -13,12 +13,12 @@ now_current_team() {
   fi
 
   if [[ $(whence node) != "" && ( "x$JSONTOOLS_METHOD" = "x"  || "x$JSONTOOLS_METHOD" = "xnode" ) ]]; then
-    cat $NOW_CONFIG_FILE | xargs -0 node -e "try {data = JSON.parse(process.argv[1]); console.log((data.currentTeam && data.currentTeam.name) || data.user.username)} catch (e) {}"
+    cat $NOW_CONFIG_FILE | xargs -0 node -e "try {data = JSON.parse(process.argv[1]).sh; console.log((data.currentTeam && data.currentTeam.name) || data.user.username)} catch (e) {}"
   elif [[ $(whence python) != "" && ( "x$JSONTOOLS_METHOD" = "x" || "x$JSONTOOLS_METHOD" = "xpython" ) ]]; then
     cat $NOW_CONFIG_FILE | python -c "
   import json, sys;
   try:
-    data = json.loads(sys.stdin.read())
+    data = json.loads(sys.stdin.read())['sh']
     if 'currentTeam' not in data:
       print(data['user']['username'])
     else:
@@ -28,7 +28,7 @@ now_current_team() {
     pass
   sys.exit(0)"
   elif [[ $(whence ruby) != "" && ( "x$JSONTOOLS_METHOD" = "x" || "x$JSONTOOLS_METHOD" = "xruby" ) ]]; then
-    cat $NOW_CONFIG_FILE | ruby -e "require \"json\"; begin; data = JSON.parse(STDIN.read); puts (data['currentTeam'] && data['currentTeam']['name']) || data['user']['username']; rescue Exception => e; end"
+    cat $NOW_CONFIG_FILE | ruby -e "require \"json\"; begin; data = JSON.parse(STDIN.read)['sh']; puts (data['currentTeam'] && data['currentTeam']['name']) || data['user']['username']; rescue Exception => e; end"
   fi
 
   unset JSONTOOLS_METHOD
