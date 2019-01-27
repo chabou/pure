@@ -183,6 +183,10 @@ prompt_pure_precmd() {
 	# Check if we should display the virtual env, we use a sufficiently high
 	# index of psvar (12) here to avoid collisions with user defined entries.
 	psvar[12]=
+	# Check if a conda environment is active and display it's name
+	if [[ -n $CONDA_DEFAULT_ENV ]]; then
+		psvar[12]="${CONDA_DEFAULT_ENV//[$'\t\r\n']}"
+	fi
 	# When VIRTUAL_ENV_DISABLE_PROMPT is empty, it was unset by the user and
 	# Pure should take back control.
 	if [[ -n $VIRTUAL_ENV ]] && [[ -z $VIRTUAL_ENV_DISABLE_PROMPT || $VIRTUAL_ENV_DISABLE_PROMPT = 12 ]]; then
@@ -396,6 +400,13 @@ prompt_pure_async_callback() {
 	local do_render=0
 
 	case $job in
+		\[async])
+			# code is 1 for corrupted worker output and 2 for dead worker
+			if [[ $code -eq 2 ]]; then
+				# our worker died unexpectedly
+				typeset -g prompt_pure_async_init=0
+			fi
+			;;
 		prompt_pure_async_vcs_info)
 			local -A info
 			typeset -gA prompt_pure_vcs_info
